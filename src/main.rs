@@ -18,19 +18,29 @@ fn load_words() -> Vec<String> {
 
 fn main() {
     let words = load_words();
-    let game = Game::new(&words);
-    let mut solver = Solver::new(words);
 
-    loop {
-        let guess = solver.pick_word();
-        let response = game.check_guess(&guess);
-        eprintln!("Guess: {}, Response: {:?}", guess, response);
+    let mut distrib = [0; 10];
 
-        if response.iter().all(|&x| x == 3) {
-            eprintln!("Found word: {}", guess);
-            break;
+    for _ in 0..10 {
+        let game = Game::new(&words);
+        let mut solver = Solver::new(words.clone());
+
+        let mut count = 0;
+        loop {
+            let guess = solver.pick_word();
+            let response = game.check_guess(&guess);
+            count += 1;
+            // eprintln!("Guess: {}, Response: {:?}", guess, response);
+
+            if response.iter().all(|&x| x == 3) {
+                eprintln!("Found {} word in {}", guess, count);
+                distrib[count] += 1;
+                break;
+            }
+
+            solver.filter_words(&guess, &response);
         }
-
-        solver.filter_words(&guess, &response);
     }
+
+    eprintln!("{:?}", distrib);
 }
