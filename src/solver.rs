@@ -25,12 +25,12 @@ impl Solver {
             .cloned()
             .collect();
         let choices_end = self.words.len();
-        eprintln!(
-            "Reduced to {} -> {} in {}",
-            choices_start,
-            choices_end,
-            time.elapsed().as_micros()
-        );
+        // eprintln!(
+        //     "Reduced to {} -> {} in {}",
+        //     choices_start,
+        //     choices_end,
+        //     time.elapsed().as_micros()
+        // );
     }
 
     pub fn pick_word(&self) -> String {
@@ -95,7 +95,7 @@ impl Solver {
                     }
                 }
                 2 => {
-                    if !word.chars().any(|x| x == c) {
+                    if !(word.chars().any(|x| x == c) && word.chars().nth(i).unwrap() != c) {
                         return false;
                     }
                 }
