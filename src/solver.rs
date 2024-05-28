@@ -4,15 +4,11 @@ use crate::game::Game;
 
 pub struct Solver {
     pub words: Vec<String>,
-    pub possibilities: [[bool; 26]; 6],
 }
 
 impl Solver {
     pub fn new(words: Vec<String>) -> Solver {
-        Solver {
-            words,
-            possibilities: [[true; 26]; 6],
-        }
+        Solver { words }
     }
 
     pub fn filter_words(&mut self, guess: &str, response: &[u8]) {
@@ -25,18 +21,18 @@ impl Solver {
             .cloned()
             .collect();
         let choices_end = self.words.len();
-        // eprintln!(
-        //     "Reduced to {} -> {} in {}",
-        //     choices_start,
-        //     choices_end,
-        //     time.elapsed().as_micros()
-        // );
+        eprintln!(
+            "Reduced to {} -> {} in {}",
+            choices_start,
+            choices_end,
+            time.elapsed().as_micros()
+        );
     }
 
     pub fn pick_word(&self) -> String {
-        if self.words.len() > 2000 {
-            return String::from("CARIES");
-        }
+        // if self.words.len() > 2000 {
+        //     return String::from("CARIES");
+        // }
 
         let mut best_word = String::new();
         let mut best_score: f64 = 0.0;
@@ -60,8 +56,6 @@ impl Solver {
                 let probability = *count as f64 / total;
                 score += probability * -probability.log2();
             }
-
-            // eprintln!("{}: {}", target_word, score);
 
             if score >= best_score {
                 best_score = score;
