@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-
 use crate::game::Game;
+use rand::Rng;
+use std::collections::HashMap;
 
 pub struct Solver {
     pub words: Vec<String>,
@@ -30,15 +30,13 @@ impl Solver {
     }
 
     pub fn pick_word(&self) -> String {
-        // if self.words.len() > 2000 {
-        //     return String::from("CARIES");
-        // }
+        let time = std::time::Instant::now();
+        let mut best_words: Vec<String> = vec![];
+        let mut best_score: f64 = -1.0;
 
-        let mut best_word = String::new();
-        let mut best_score: f64 = 0.0;
-
+        let mut counter: HashMap<u32, u16> = HashMap::new();
         for target_word in &self.words {
-            let mut counter: HashMap<u32, u16> = HashMap::new();
+            counter.clear();
             let test_game = Game {
                 current_word: target_word.clone(),
             };
@@ -57,13 +55,25 @@ impl Solver {
                 score += probability * -probability.log2();
             }
 
-            if score >= best_score {
+            // eprintln!("{}: {}", target_word, score);
+
+            if score > best_score {
                 best_score = score;
-                best_word = target_word.clone();
+                best_words = vec![target_word.clone()];
+            } else if score == best_score {
+                best_words.push(target_word.clone())
             }
         }
+        eprintln!(
+            "Testing {} words in {}us",
+            self.words.len(),
+            time.elapsed().as_micros()
+        );
+        eprintln!("{} words have the same score", best_words.len());
 
-        best_word
+        let mut rng = rand::thread_rng();
+        let idx = rng.gen_range(0..best_words.len());
+        best_words[idx].clone()
     }
 
     fn response_to_int(&self, response: &[u8]) -> u32 {
@@ -75,7 +85,7 @@ impl Solver {
         hash
     }
 
-    fn check_word(&self, word: &String, guess: &str, response: &[u8]) -> bool {
+    pub fn check_word(&self, word: &String, guess: &str, response: &[u8]) -> bool {
         if word == &guess.to_string() {
             // This line is added to prevent the same word from being guessed again
             return false;
